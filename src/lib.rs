@@ -10,8 +10,8 @@ pub struct Config {
 
 type MyResult<T> = Result<T, Box<dyn Error>>;
 
-pub fn run() -> MyResult<()> {
-    println!("Hello, world!");
+pub fn run(config: Config) -> MyResult<()> {
+    dbg!(config);
     Ok(())
 }
 
@@ -24,20 +24,27 @@ pub fn get_args() -> MyResult<Config> {
         Arg::with_name("files")
         .value_name("FILES")
         .help("Input files")
-        .required(true)
-        .min_values(1),
+        .min_values(1)
+        .default_value("-")
     )
     .arg(
-        Arg::with_name("number_lines")
-        .value_name("NUMBER_LINES")
+        Arg::with_name("number")
+        .short("n")
         .help("Print line numbers")
+        .conflicts_with("number-nonblank")
     )
-    .arg()
+    .arg(
+        Arg::with_name("number-nonblank")
+        .short("b")
+        .help("Print non-blank line numbers")
+        .conflicts_with("number")
+    )
     .get_matches();
 
+
     Ok(Config {
-        files: ...,
-        number_lines: ...,
-        number_nonblank_lines: ...,
+        files: matches.values_of_lossy("files").unwrap(),
+        number_lines: matches.is_present("number"),
+        number_nonblank_lines: matches.is_present("number-nonblank"),
     })
 }
