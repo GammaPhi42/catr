@@ -26,9 +26,9 @@ fn read_lines(file_handle: Box<dyn BufRead>, number_lines : bool, number_nonblan
         
         let line_to_print = line.unwrap();
         
-        if (number_nonblank_lines && line_to_print != "") || number_lines {
+        if (number_nonblank_lines && !line_to_print.is_empty() ) || number_lines {
             line_number += 1;    
-            println!("{}",format!("{:>6}\t{}", line_number, line_to_print));
+            println!("{:>6}\t{}", line_number, line_to_print);
         }
         else {
             println!("{}", line_to_print);
