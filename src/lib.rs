@@ -19,24 +19,31 @@ fn open(filename: &str) -> MyResult<Box<dyn BufRead>> {
     }
 }
 
-fn read_lines(file_handle: Box<dyn BufRead>) -> MyResult<()> {
+
+fn read_lines(file_handle: Box<dyn BufRead>, number_lines : bool, number_nonblank_lines : bool) {
+    let mut line_number = 0;
     for line in file_handle.lines() {
-        println!("{}", line.unwrap());
+        
+        let line_to_print = line.unwrap();
+        
+        if (number_nonblank_lines && line_to_print != "") || number_lines {
+            line_number += 1;    
+            println!("{}",format!("{:>6}\t{}", line_number, line_to_print));
+        }
+        else {
+            println!("{}", line_to_print);
+        }
     }
-    Ok(())
+    
 }
 
+
 pub fn run(config: Config) -> MyResult<()> {
-    println!("Printing input to run:");
-    dbg!(&config);
+    
     for filename in config.files {
         match open(&filename) {
             Err(err) => eprintln!("Failed to open {}: {}", filename, err),
-            Ok(_) =>  {
-                println!("Printing file:");
-                read_lines(open(&filename).unwrap()).unwrap()
-
-            },
+            Ok(_) => read_lines(open(&filename).unwrap(), config.number_lines, config.number_nonblank_lines),
         }
     }
     Ok(())
