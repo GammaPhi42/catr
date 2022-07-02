@@ -24,32 +24,43 @@ fn open(filename: &str) -> MyResult<Box<dyn BufRead>> {
     }
 }
 
-fn read_lines(file_handle: Box<dyn BufRead>, number_lines: bool, number_nonblank_lines: bool) -> MyResult<()> {
-    let mut line_number = 0;
-    for line in file_handle.lines() {
-        let line = line?;
+// fn read_lines(file_handle: Box<dyn BufRead>, number_lines: bool, number_nonblank_lines: bool) -> MyResult<()> {
+//     let mut line_number = 0;
+//     for line in file_handle.lines() {
+//         let line = line?;
 
-        if (number_nonblank_lines && !line.is_empty()) || number_lines {
-            line_number += 1;
-            println!("{:>6}\t{}", line_number, line);
-        } else {
-            println!("{}", line);
-        }
+//         if (number_nonblank_lines && !line.is_empty()) || number_lines {
+//             line_number += 1;
+//             println!("{:>6}\t{}", line_number, line);
+//         } else {
+//             println!("{}", line);
+//         }
 
         
-    }
-    Ok(())
-}
+//     }
+//     Ok(())
+// }
+
 
 pub fn run(config: Config) -> MyResult<()> {
+    let mut line_number = 0;
     for filename in config.files {
         match open(&filename) {
             Err(err) => eprintln!("Failed to open {}: {}", filename, err),
-            Ok(_) => { read_lines(
-                open(&filename)?,
-                config.number_lines,
-                config.number_nonblank_lines,
-            )?},
+            Ok (file) => {
+                for line in file.lines() {
+                    let line = line?;
+                    if (config.number_nonblank_lines && !line.is_empty()) || config.number_lines {
+                        line_number += 1;
+                        println!("{:>6}\t{}", line_number, line);
+                    }
+                    else {
+                        println!("{}", line);
+                    }
+                }
+            
+            
+            },
         }
     }
     Ok(())
